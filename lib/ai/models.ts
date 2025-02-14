@@ -1,5 +1,4 @@
-import { openai } from '@ai-sdk/openai';
-import { fireworks } from '@ai-sdk/fireworks';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import {
   customProvider,
   extractReasoningMiddleware,
@@ -8,16 +7,21 @@ import {
 
 export const DEFAULT_CHAT_MODEL: string = 'chat-model-small';
 
+export const openRouter = createOpenAI({
+  baseURL: 'https://openrouter.ai/api/v1',
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
 export const myProvider = customProvider({
   languageModels: {
-    'chat-model-small': openai('gpt-4o-mini'),
-    'chat-model-large': openai('gpt-4o'),
+    'chat-model-small': openRouter('deepseek/deepseek-chat'),
+    'chat-model-large': openRouter('deepseek/deepseek-chat'),
     'chat-model-reasoning': wrapLanguageModel({
-      model: fireworks('accounts/fireworks/models/deepseek-r1'),
+      model: openRouter('deepseek/deepseek-r1:free'),
       middleware: extractReasoningMiddleware({ tagName: 'think' }),
     }),
-    'title-model': openai('gpt-4-turbo'),
-    'artifact-model': openai('gpt-4o-mini'),
+    'title-model': openRouter('deepseek/deepseek-chat'),
+    'artifact-model': openRouter('deepseek/deepseek-chat'),
   },
   imageModels: {
     'small-model': openai.image('dall-e-2'),
